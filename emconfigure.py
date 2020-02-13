@@ -41,6 +41,10 @@ variables so that emcc etc. are used. Typical usage:
 (but you can run any command instead of configure)''', file=sys.stderr)
     return 1
 
+  if 'cmake' in sys.argv[1]:
+    print('error: use `emcmake` rather then `emconfigure` for cmake projects', file=sys.stderr)
+    return 1
+
   try:
     shared.Building.configure(sys.argv[1:])
     return 0

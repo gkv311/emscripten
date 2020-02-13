@@ -1734,7 +1734,9 @@ class Building(object):
 
   @staticmethod
   def configure(args, stdout=None, stderr=None, env=None, cflags=[], **kwargs):
-    if env is None:
+    if env:
+      env = env.copy()
+    else:
       env = Building.get_building_env(cflags=cflags)
     if 'cmake' in args[0]:
       # Note: EMMAKEN_JUST_CONFIGURE shall not be enabled when configuring with
