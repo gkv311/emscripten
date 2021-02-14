@@ -807,21 +807,25 @@ var LibraryGL = {
 #if USE_PTHREADS
       {{{ makeSetValue('handle', 4, '_pthread_self()', 'i32')}}}; // the thread pointer of the thread that owns the control of the context
 #endif
+      // workaround Safari bug returning WebGL 1.0 context by canvas.getContext("webgl2") if WebGL context was already created
+      var majVerWebGl = (typeof WebGL2RenderingContext === 'undefined' || !(ctx instanceof WebGL2RenderingContext)) ? 1 : webGLContextAttributes.majorVersion;
       var context = {
         handle: handle,
         attributes: webGLContextAttributes,
-        version: webGLContextAttributes.majorVersion,
+        version:  majVerWebGl,
         GLctx: ctx
       };
 
 #if USE_WEBGL2
       // BUG: Workaround Chrome WebGL 2 issue: the first shipped versions of WebGL 2 in Chrome did not actually implement the new WebGL 2 functions.
       //      Those are supported only in Chrome 58 and newer.
+      //      The same is for the first experimental WebGL 2.0 implementations in Safari 14.
       function getChromeVersion() {
         var raw = navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./);
         return raw ? parseInt(raw[2], 10) : false;
       }
-      context.supportsWebGL2EntryPoints = (context.version >= 2) && (getChromeVersion() === false || getChromeVersion() >= 58);
+      context.supportsWebGL2EntryPoints = (context.version >= 2) && (getChromeVersion() === false || getChromeVersion() >= 58)
+                                                                 && !navigator.userAgent.includes("AppleWebKit/");
 #endif
 
 #if WORKAROUND_OLD_WEBGL_UNIFORM_UPLOAD_IGNORED_OFFSET_BUG
